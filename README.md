@@ -23,3 +23,18 @@ Depuis une machine Debian, on exécute un script shell qui cible des ordinateurs
 
 # Objectif secondaire :
 Depuis un serveur, cibler une machine cliente avec un type d’OS différent
+
+# 📋 Tableau de Suivi du Projet - Étape J1
+
+| 🎯 Tâche | 🚦 Statut | 📝 Détails | 🔧 Actions Prochaines |
+|----------|-----------|------------|----------------------|
+| 💻 Installation des Clients et Serveurs sur Machines Virtuelles | ✅ Terminé | Déploiement des VM Windows et Linux | - Vérification finale des configurations |
+| 📜 Préparation du Squelette pour les Scripts | 🔄 En Cours | Structuration initiale des scripts | - Définir l'architecture des scripts<br>- Créer les répertoires de travail<br>- Établir les conventions de nommage |
+| 🤝 Mise en Place des Rôles et Méthode de Travail | ✅ Terminé | Définition des responsabilités de l'équipe | - Validation finale des rôles<br>- Revue des processus de collaboration |
+| 📚 Documentation sur le Scripting du Projet | 🔄 En Cours | Collecte et rédaction des informations techniques | - Rédiger les guidelines de scripting<br>- Compiler les ressources et bonnes pratiques<br>- Créer un guide de référence |
+
+## 🔍 Légende
+- ✅ Terminé
+- 🔄 En Cours
+- 🕒 Non Démarré
+
