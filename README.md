@@ -33,6 +33,14 @@ Depuis un serveur, cibler une machine cliente avec un type d’OS différent
 | 🤝 Mise en Place des Rôles et Méthode de Travail | ✅ Terminé | Définition des responsabilités de l'équipe | - Validation finale des rôles<br>- Revue des processus de collaboration |
 | 📚 Documentation sur le Scripting du Projet | 🔄 En Cours | Collecte et rédaction des informations techniques | - Rédiger les guidelines de scripting<br>- Compiler les ressources et bonnes pratiques<br>- Créer un guide de référence |
 
+# 📋 Tableau de Suivi du Projet - Étape J2
+
+| 🎯 Tâche | 🚦 Statut | 📝 Détails | 🔧 Actions Prochaines |
+|----------|-----------|------------|----------------------|
+| 💻 Phase 1 du script | 🔄 En Cours | Mise en forme primaire | - Vérification des entrées |
+| 📜 Test de mise en forme des menu | 🔄 En Cours | Structuration des couleur initiale des scripts |  |
+| 📚 Documentation sur le Scripting du Projet | 🔄 En Cours | Collecte et rédaction des informations techniques | - Rédiger les guidelines de scripting<br>- Compiler les ressources et bonnes pratiques<br>- Créer un guide de référence |
+
 ## 🔍 Légende
 - ✅ Terminé
 - 🔄 En Cours
