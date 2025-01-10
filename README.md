@@ -52,6 +52,7 @@ Depuis un serveur, cibler une machine cliente avec un type d’OS différent
 
 # 📋 Tableau de Suivi du Projet - Étape 4
 | 🎯 Tâche | 🚦 Statut | 📝 Détails | 🔧 Actions Prochaines |
+|----------|-----------|------------|----------------------|
 |💻 tests finaux script bash | ✅ Terminé | test avec conexion ssh des actions et fonctions | Prés pour démo
 |📜 Choix de la strucutre powershell | 🔄 En Cours | choix de windows forms  | implentation et sous menus et fonctions
 |🔍 Recherche et documentation Powershell 🔄 En Cours |Collecte et rédaction des informations techniques sur les fonctions|faire des fonctions semblable au script bash
