@@ -183,3 +183,5 @@ Pour exécuter le script, utilisez la commande suivante :
 chmod +x script.sh
 ./script.sh
 ```
+📜Guide d'utilisation du script Powershell avec windows form
+
