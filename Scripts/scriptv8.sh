@@ -1023,8 +1023,9 @@ menu_gestion_logiciels() {
         --menu "Veuillez choisir une option :" 15 50 6 \
         1 "Installer un logiciel" \
         2 "Désinstaller un logiciel" \
-        3 "Arrêter un logiciel" \
-        4 "Retour au menu précédent")
+	3 "Démarrer un logiciel" \
+        4 "Arrêter un logiciel" \
+        5 "Retour au menu précédent")
 
     case $choix in
         1)
@@ -1054,7 +1055,24 @@ menu_gestion_logiciels() {
             menu_gestion_logiciels
             ;;
 
-        3)
+	  3)  # Ne fonctionne pas
+            local logiciel=$(dialog --stdout --inputbox "Entrez le nom du logiciel à démarrer :" 8 40)
+            if [ -n "$logiciel" ]; then
+               if executer_commande "nohup $logiciel &"; then
+                    dialog --msgbox "Logiciel '$logiciel' démarré avec succès." 8 40
+               else
+                    dialog --msgbox "Échec du démarrage du logiciel '$logiciel'." 8 40
+               fi
+            else
+                dialog --msgbox "Nom du logiciel non fourni." 8 40
+            fi
+            menu_gestion_logiciels
+            ;;
+
+
+
+
+        4)
             local logiciel=$(dialog --stdout --inputbox "Entrez le nom du logiciel à arrêter :" 8 40)
             if [ -n "$logiciel" ]; then
                if executer_commande "pkill '$logiciel'"; then
@@ -1067,7 +1085,7 @@ menu_gestion_logiciels() {
             fi
             menu_gestion_logiciels
             ;;
-        4)
+        5)
             menu_action_ordi
             ;;
         *)
