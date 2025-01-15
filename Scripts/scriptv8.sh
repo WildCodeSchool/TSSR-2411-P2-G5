@@ -2,6 +2,10 @@
 
 # Point d'entrée du script
 main() {
+
+    # Journalise le lancement du script
+    log_evt "********StartScript********"
+
     # Vérifier les privilèges root
     if [ "$(id -u)" -ne 0 ]; then
         echo "Ce script nécessite des privilèges root. Utilisez sudo."
@@ -10,21 +14,73 @@ main() {
 
     # Vérifier la présence de dialog
     if ! command -v dialog &> /dev/null; then
-        echo "Le paquet 'dialog' est requis. Installez-le avec : sudo apt-get install dialog"
+        echo "le packet Dialog est requis. Installation..."
+        sudo apt-get install dialog -y
         exit 1
     fi
     
     # Vérifier la présence de sshpass
     if ! command -v sshpass &> /dev/null; then
-        echo "Le paquet 'sshpass' est requis. Installez-le avec : sudo apt-get install sshpass"
+        echo "Le paquet 'sshpass' est requis. Installation..."
+        sudo apt-get install sshpass -y
         exit 1
     fi
     
-    connexion_ssh
+    menu_intro
 }
 
+#Fonction pour journaliser les événements dans log_evt.log
+log_evt(){
+        local user_action="$1"
+        local target_host="$IP"
+	local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+	
 
+	local log_file="/var/log/log_evt.log"
+
+	#Enregistre l'événement dans le fichier log
+	echo "[$timestamp] ${Utilisateur}@${target_host} - {$user_action}" >> "$log_file"
+}
+
+# Fonction menu intro
+menu_intro() {
+    local choix=$(dialog --stdout \
+        --title "Menu de démarrage du script" \
+        --menu "Veuillez choisir une option :" 15 50 6 \
+        1 "Gestion des utilisateurs ou ordinateurs" \
+        2 "Affichage des logs" )
+
+    case $choix in
+        1)
+            connexion_ssh
+            ;;
+        2)
+            log_evt "Accès au menu des logs"
+	    view_logs
+            ;;
+        *)
+            clear
+            exit 0
+            ;;
+    esac
+}
+
+# Fonction pour afficher les logs
+view_logs() {
+    local log_file="/var/log/log_evt.log"
+    
+    if [ -f "$log_file" ]; then
+        dialog --title "Journal des actions" \
+               --textbox "$log_file" 20 80
+    else
+        dialog --msgbox "Aucun journal trouvé." 8 40
+    fi
+    clear
+}
+
+# Fonction pour se connecter à un ordinateur distant via SSH
 connexion_ssh() {
+    log_evt "Accès à la fonction de connexion SSH"
     local choix=$(dialog --stdout \
         --title "Connexion SSH" \
         --menu "Veuillez choisir une option :" 15 50 6 \
@@ -56,26 +112,46 @@ connexion_ssh() {
            ;; 
     esac
 
+    # Journaliser la connexion SSH
+    if [ "$resultat" == "Connexion SSH réussie à ${Utilisateur}@${IP}" ]; then
+        log_evt "Connexion SSH réussie à ${IP}"
+        menu_principal
+    else
+        log_evt "Échec de connexion SSH à ${IP}"
+        dialog --msgbox "La connection ssh n'a pas réussi" 10 60
+        clear
+        connexion_ssh
+    fi
+
+
    #Vérification de la connection avant de continuer le script
-            if [ "$resultat" == "Connexion SSH réussie à ${Utilisateur}@${IP}" ]; then
-              menu_principal
-           else
-              dialog --msgbox  "La connection ssh n'a pas réussi" 10 60
-                clear
-                connexion_ssh
-           fi
+    if [ "$resultat" == "Connexion SSH réussie à ${Utilisateur}@${IP}" ]; then
+        menu_principal
+    else
+        dialog --msgbox  "La connection ssh n'a pas réussi" 10 60
+        clear
+        connexion_ssh
+    fi
 }
 
 # Fonction pour exécuter une commande via SSH sans répétition dans chaque sous-menu
 executer_commande() {
     # Passez la commande à exécuter sur la machine distante comme argument
     local commande="$1"
+    local description="\$2"  # Description optionnelle de la commande
+    
+    # Journaliser la commande
+    if [ -z "$description" ]; then
+        log_evt "Exécution: $commande"
+    fi
+    
     # Exécution de la commande via SSH sans répéter sshpass
     sshpass -p "${MotDePasse}" ssh ${Utilisateur}@${IP} -p ${Port} "$commande" 2>&1
 }
 
 # Fonction menu principal
 menu_principal() {
+    log_evt "Accès au menu principal"
     local choix=$(dialog --stdout \
         --title "Menu Principal" \
         --menu "Veuillez choisir une option :" 15 50 6 \
@@ -84,12 +160,15 @@ menu_principal() {
 
     case $choix in
         1)
-            menu_principal_users
+            log_evt "Accès à la gestion des utilisateurs"
+            menu_users
             ;;
         2)
+            log_evt "Accès à la gestion des ordinateurs"
             menu_ordi
             ;;
         *)
+            log_evt "Sortie du script"
             clear
             exit 0
             ;;
@@ -97,7 +176,8 @@ menu_principal() {
 }
 
 
-# Fonction menu utilisateur
+# Fonctions menu utilisateur
+
 # Fonction pour sauvegarder le contenu dans un fichier
 save_to_file() {
     local content="$1"
@@ -118,8 +198,9 @@ save_to_file() {
     # Afficher un message de confirmation
     dialog --msgbox "Fichier sauvegardé :\n$filename" 10 50
 }
+
 # Fonction du menu principal
-menu_principal_users() {
+menu_users() {
     local choix=$(dialog --stdout \
         --title "Menu Principal de Gestion des Utilisateurs" \
         --menu "Veuillez choisir une option :" 30 100 15 \
@@ -134,22 +215,22 @@ menu_principal_users() {
     case $choix in
         1)
             list_users
-            menu_principal_users ;;
+            menu_users ;;
         2)    
             create_user
-            menu_principal_users ;;
+            menu_users ;;
         3)
             modify_password
-            menu_principal_users ;;
+            menu_users ;;
         4)
             delete_user
-            menu_principal_users ;;
+            menu_users ;;
         5)
             modify_group_rights
-            menu_principal_users ;;
+            menu_users ;;
         6)
             user_selection
-            menu_principal_users ;;
+            menu_users ;;
         7)
 	    menu_principal ;;
         *)
@@ -215,7 +296,7 @@ create_user() {
     # Vérifier que le nom d'utilisateur n'est pas vide
     if [ -z "$username" ]; then
         dialog --msgbox "Nom d'utilisateur invalide." 10 40
-        return
+        return 1
     fi
 
     # Demander le prénom et nom complet
@@ -724,12 +805,16 @@ menu_activite_ordi() {
     case $choix in
         1)
            local apps=$(executer_commande "dpkg-query -l | awk '{print $2}' | tail -n +6")
-           dialog --msgbox "Liste des applications installées :\n\n$apps" 20 70
+           echo -e "Applications installées :\n\n$apps" > /tmp/apps_list.txt
+
+           local packages=$(executer_commande "dpkg-query -l | awk '{print $1, $2}' | tail -n +6")
+           echo -e "Paquets installés :\n\n$packages" > /tmp/packages_list.txt
+           dialog --textbox /tmp/apps_list.txt 20 70
+           dialog --textbox /tmp/packages_list.txt 20 70
            menu_activite_ordi
             ;;
         2)
-           local services=$(executer_commande "systemctl list-units --type=service --state=running | awk '{print $1}' | tail -n +2")
-           dialog --msgbox "Services en cours d'exécution :\n\n$services" 20 70
+           service_table
            menu_activite_ordi
             ;;
         3)
@@ -740,6 +825,30 @@ menu_activite_ordi() {
             exit 0
             ;;
     esac
+}
+
+# Liste des services en cours d'exécution
+service_table() {
+      # Créer un fichier temporaire pour stocker les données
+      filename=$(mktemp)
+ 
+      # Extraire les données des services et les formater
+      local resultat=$(executer_commande "systemctl list-units --type=service --no-pager")
+     echo "$resultat" >> "$filename"
+ 
+     # Vérifier si des services ont été trouvés
+     if [ $(wc -l < "$resultat") -le 1 ]; then
+         dialog --title "Services" --msgbox "Aucun service trouvé." 10 40
+     else
+         # Afficher les services dans une fenêtre dialog
+         dialog --title "Services en cours d'exécution" \
+                --backtitle "Gestionnaire de Services" \
+                --ok-label "Retour" \
+                --textbox "$filename" 30 120
+     fi
+
+     # Supprimer le fichier temporaire
+     rm -f "$filename"
 }
 
 # Menu Actions sur l'Ordinateur
@@ -914,9 +1023,8 @@ menu_gestion_logiciels() {
         --menu "Veuillez choisir une option :" 15 50 6 \
         1 "Installer un logiciel" \
         2 "Désinstaller un logiciel" \
-        3 "Démarrer un logiciel" \
-        4 "Arrêter un logiciel" \
-        5 "Retour au menu précédent")
+        3 "Arrêter un logiciel" \
+        4 "Retour au menu précédent")
 
     case $choix in
         1)
@@ -945,20 +1053,8 @@ menu_gestion_logiciels() {
             fi
             menu_gestion_logiciels
             ;;
+
         3)
-            local logiciel=$(dialog --stdout --inputbox "Entrez le nom du logiciel à démarrer :" 8 40)
-            if [ -n "$logiciel" ]; then
-               if executer_commande "nohup $logiciel &"; then
-                    dialog --msgbox "Logiciel '$logiciel' démarré avec succès." 8 40
-               else
-                    dialog --msgbox "Échec du démarrage du logiciel '$logiciel'." 8 40
-               fi
-            else
-                dialog --msgbox "Nom du logiciel non fourni." 8 40
-            fi
-            menu_gestion_logiciels
-            ;;
-        4)
             local logiciel=$(dialog --stdout --inputbox "Entrez le nom du logiciel à arrêter :" 8 40)
             if [ -n "$logiciel" ]; then
                if executer_commande "pkill '$logiciel'"; then
@@ -971,7 +1067,7 @@ menu_gestion_logiciels() {
             fi
             menu_gestion_logiciels
             ;;
-        5)
+        4)
             menu_action_ordi
             ;;
         *)
@@ -982,3 +1078,5 @@ menu_gestion_logiciels() {
 }
 
 main
+
+log_evt "********EndScript********"
